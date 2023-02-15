@@ -1,0 +1,38 @@
+Sqoop Commands:
+
+sqoop job --create Sqoop_weblogdetails_test1 -- import \
+--connect jdbc:mysql://localhost:3306/test1 \
+--username root \
+--password-file  file:///home/00HADOOP/00EcoSystem/sqoopmysql.password \
+--table weblogdetails \
+--target-dir /airflowproject/Sqoop_weblogdetails_test1 \
+--incremental append \
+--check-column id \
+--last-value 0 \
+-m1 \
+--direct
+
+sqoop job --create Sqoop_weblogdetails_test1 -- import --connect jdbc:mysql://localhost:3306/test --username root --password-file  file:///home/bigdatapedia/00HADOOP/00EcoSystem/sqoopmysql.password --table weblogdetails --target-dir /airflowproject/Sqoop_weblogdetails_test1 --incremental append --check-column id --last-value 0 -m1 --direct
+
+sqoop job --exec Sqoop_weblogdetails_test1
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Hive Commands:
+
+use test1;
+
+create external table weblog_external (id int, datevalue string,ipaddress string, host string, url string, responsecode int) row format delimited fields terminated by ',' stored as textfile location '/airflowproject/Sqoop_weblogdetails_test1';
+
+select * from weblog_external limit 5;
+select count(*) from weblog_external;
+
+set hive.exec.dynamic.partition=true;
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.exec.max.dynamic.partitions=1000;
+
+create table weblog_Dynamicpart_sqoop_internal (id int, datevalue string, ipaddress string, url string, responsecode int) partitioned by (host string) row format delimited fields terminated by ',' stored as textfile;
+
+insert into weblog_Dynamicpart_sqoop_internal partition(host) select id, datevalue, ipaddress, url, responsecode, host from weblog_external as b where not exists (select a.id from weblog_Dynamicpart_sqoop_internal as a where a.id = b.id);
+
+insert into weblog_Dynamicpart_sqoop_internal partition(host) select id, datevalue, ipaddress, url, responsecode, host from weblog_external as b where not exists (select a.id from weblog_Dynamicpart_sqoop_internal as a where a.id = b.id);

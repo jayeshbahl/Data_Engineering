@@ -1,0 +1,20 @@
+#Kafka Streaming
+
+#run Zookeeper 
+zkServer.sh start
+
+#start kafka server
+./bin/kafka-server-start.sh ./config/server.properties --override delete.topic.enable=true
+
+#creating kafka topics
+./bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic kfktpkOne 
+
+
+#mySQL Queries
+
+>>use test1;
+>>create table weblogdetails (id int NOT NULL AUTO_INCREMENT,datevalue timestamp, ipaddress varchar(150),host varchar(150),url varchar(150),responsecode integer,PRIMARY KEY (id));
+
+>>INSERT INTO weblogdetails (datevalue,ipaddress,host,url,responsecode) VALUES ('2019-10-28 12:59:06','10.128.2.1','nhmasternode','GET /css/main.css HTTP/1.1','200');
+
+
